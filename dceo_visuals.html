@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Interactive Grid</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js" integrity="sha512-VW8/i4IZkHxdD8OlqNdF7fGn3ba0+lYqag+Uy4cG6BtJ/LIr8t23s/vls70pQ41UasHH0tL57GQfKDApqc9izA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.23.1/plotly.min.js" integrity="sha512-EsIgdyDfnktid1PSaSMMqrwvUZeMW2TtbfX8vetg3zTWf6ZGKpcihKX1RcIK9GdewxXTET2KEaounUGCGQHT1A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 400px;
+      height: 400px;
+    }
+
+    td {
+      border: 1px solid #000;
+      width: 40px;
+      height: 40px;
+      background-color: #fff;
+      cursor: pointer;
+    }
+
+    td.clicked, td.edge {
+      background-color: #000;
+    }
+
+    #heatmap-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    }
+
+    .heatmap-container {
+    width: 300px;
+    height: 300px;
+    margin: 10px;
+    }
+
+    .container {
+      display: flex;
+      width: 500px; /* Set the container width */
+      height: 500px; /* Set the container height */
+    }
+    .left-column {
+      flex: 1; /* Take up remaining horizontal space */
+      display: flex; /* Enable flexbox for centering */
+      align-items: center; /* Center items vertically */
+    }
+
+    .right-column {
+    margin-left: 20px;
+    display: flex; /* Enable flexbox for centering */
+    flex-direction: column; /* Stack items vertically */
+    justify-content: center; /* Center items vertically */
+    }
+
+    #grid {
+      flex: 1; /* Take up remaining horizontal space */
+      width: 400px; /* Set the grid width */
+      height: 400px; /* Take up the full height of the container */
+      /* Add any other styles for the table */
+    }
+    #generateButton {
+      width: 100px;
+      margin: 0 auto; /* Center horizontally */
+      /* Add any other styles for the button */
+    }
+
+    #buttonText {
+      margin: 10px auto 0; /* Center horizontally with top margin */
+      /* Add any other styles for the text */
+    }
+  </style>
+</head>
+<body>
+  <h1>Interactive Grid</h1>
+  <div class="container">
+    <div class="left-column">
+      <table id="grid"></table>
+    </div>
+    <div class="right-column">
+      <button id="generateButton">Generate Eigenfunctions</button>
+      <p id="buttonText">To generate the plots: <br> 1. draw your grid <br> 2. click the button</p>
+    </div>
+    
+  </div>
+  <!-- <div id="output"></div> -->
+
+  <div id="heatmap-container">
+    <div class="heatmap-row">
+    <div id="heatmap-0" class="heatmap-container"></div>
+    <div id="heatmap-4" class="heatmap-container"></div>
+    </div>
+    <div class="heatmap-row">
+    <div id="heatmap-1" class="heatmap-container"></div>
+    <div id="heatmap-5" class="heatmap-container"></div>
+    </div>
+    <div class="heatmap-row">
+    <div id="heatmap-2" class="heatmap-container"></div>
+    <div id="heatmap-6" class="heatmap-container"></div>
+    </div>
+    <div class="heatmap-row">
+    <div id="heatmap-3" class="heatmap-container"></div>
+    <div id="heatmap-7" class="heatmap-container"></div>
+    </div>
+  </div>
+  <script>
+    let isDrawing = false;
+
+    function handleMouseDown(event) {
+      isDrawing = true;
+      toggleCellColor(event.target);
+    }
+
+    function handleMouseUp() {
+      isDrawing = false;
+    }
+
+    function handleMouseEnter(event) {
+      const cell = event.target;
+      if (isDrawing && !cell.classList.contains("edge")) {
+        toggleCellColor(cell);
+      }
+    }
+
+    function handleClick(event) {
+      event.preventDefault(); // Prevent default click behavior
+    }
+
+    function toggleCellColor(cell) {
+      if (cell.classList.contains("clicked")) {
+        cell.classList.remove("clicked");
+      } else {
+        cell.classList.add("clicked");
+      }
+    }
+
+    function generateString() {
+      const grid = document.getElementById("grid");
+      const rows = grid.querySelectorAll("tr");
+      let str = "";
+      rows.forEach((row) => {
+        const cells = row.querySelectorAll("td");
+        cells.forEach((cell) => {
+          if (cell.classList.contains("clicked")) {
+            str += "*";
+          } else {
+            str += "@";
+          }
+        });
+        str += "L"; // Add a newline character after each row
+      });
+      return str.slice(0, -1);
+    }
+
+    // Create a 10x10 grid
+    const grid = document.getElementById("grid");
+    for (let i = 0; i < 10; i++) {
+      const row = document.createElement("tr");
+      for (let j = 0; j < 10; j++) {
+        const cell = document.createElement("td");
+        cell.addEventListener("mousedown", handleMouseDown, true);
+        cell.addEventListener("mouseup", handleMouseUp, true);
+        cell.addEventListener("mouseenter", handleMouseEnter, true);
+        cell.addEventListener("click", handleClick);
+
+        // Add "edge" class to cells on the edge
+        if (i === 0 || i === 9 || j === 0 || j === 9) {
+          cell.classList.add("clicked", "edge");
+        }[]
+
+        row.appendChild(cell);
+      }
+      grid.appendChild(row);
+    }
+
+    function plotEigenvectors(strMDP) {
+      // Replace "@" with 0 and "*" with 1
+      strMDP = strMDP.replace(/@/g, '0').replace(/\*/g, '1');
+
+      // Split the string by rows
+      let data = strMDP.split('L');
+      console.log("data", data)
+
+      // Define the number of rows and columns
+      let numRows = data.length;
+      let numCols = data[0].length;
+
+      // Store the rows in a list of lists with numerical values
+      let matrixMDP = [];
+      for (let i = 0; i < data.length; i++) {
+        let row = [];
+        for (let j = 0; j < data[i].length; j++) {
+          row.push(Number(data[i][j]));
+        }
+        matrixMDP.push(row);
+      }
+
+      // Create the idxMatrix
+      let idxMatrix = [];
+      for (let i = 0; i < numRows; i++) {
+        let row = [];
+        for (let j = 0; j < numCols; j++) {
+          row.push(i * numCols + j);
+        }
+        idxMatrix.push(row);
+      }
+
+      let numStates = numRows * numCols;
+
+      let adjMatrix = [];
+      for (let i = 0; i < numStates; i++) {
+        adjMatrix[i] = [];
+        for (let j = 0; j < numStates; j++) {
+          adjMatrix[i][j] = 0;
+        }
+      }
+      console.log("adjMatrix", adjMatrix)
+
+      for (let i = 0; i < numRows; i++) {
+        for (let j = 0; j < numCols; j++) {
+
+          if (i !== 0 && i !== (numRows - 1) && j !== 0 && j !== (numCols - 1) && matrixMDP[i][j] !== 1) {
+
+            if (matrixMDP[i + 1][j] !== 1) {
+              adjMatrix[idxMatrix[i][j]][idxMatrix[i + 1][j]] = 1;
+            }
+            if (matrixMDP[i - 1][j] !== 1) {
+              adjMatrix[idxMatrix[i][j]][idxMatrix[i - 1][j]] = 1;
+            }
+            if (matrixMDP[i][j + 1] !== 1) {
+              adjMatrix[idxMatrix[i][j]][idxMatrix[i][j + 1]] = 1;
+            }
+            if (matrixMDP[i][j - 1] !== 1) {
+              adjMatrix[idxMatrix[i][j]][idxMatrix[i][j - 1]] = 1;
+            }
+
+          }
+
+        }
+      }
+
+      let lapMatrix = [];
+      for (let i = 0; i < numStates; i++) {
+        lapMatrix[i] = [];
+        for (let j = 0; j < numStates; j++) {
+          lapMatrix[i][j] = 0;
+        }
+      }
+
+      for (let i = 0; i < numStates; i++) {
+        let degree = 0;
+        for (let j = 0; j < numStates; j++) {
+          lapMatrix[i][j] = - adjMatrix[i][j];
+          degree += adjMatrix[i][j];
+        }
+        lapMatrix[i][i] = degree;
+      }
+      console.log("lapMatrix", lapMatrix)
+      let eigenvectors = calculateEigenvectors(lapMatrix);
+
+      function plotHeatmap(vector, index) {
+        const heatmapId = `heatmap-${index}`;
+
+        // Create a new div for each heatmap
+        const heatmapDiv = document.createElement('div');
+        heatmapDiv.id = heatmapId;
+        document.getElementById('heatmap-container').appendChild(heatmapDiv);
+
+        let heatmapData = [];
+        for (var i = 0; i < numRows; i++) {
+          heatmapData.push(vector.slice(i * numCols, (i + 1) * numCols));
+        }
+        function horizontalFlip(arr) {
+          return arr.reverse();
+        }
+        const flippedArray = horizontalFlip(heatmapData);
+        console.log("flippedArray", flippedArray);
+        console.log("heatmapData", heatmapData)
+
+        // Create the heatmap using Plotly.js
+        let plot_data = [
+          {
+            z: flippedArray,
+            type: 'heatmap',
+            colorscale : 'Viridis',
+            showscale: false,
+          }
+        ];
+
+        let layout = {
+          xaxis: {
+            showticklabels: false, // Hide the x-axis tick labels
+            ticks: ''
+          },
+          yaxis: {
+            showticklabels: false, // Hide the y-axis tick labels
+            ticks: ''
+          },
+          autosize: true, // Automatically adjust the plot size to maintain aspect ratio
+          width: 300, // Set the width
+          height: 300, // Set the height
+          margin: {
+            l: 40, // Add left margin to accommodate y-axis tick labels if needed
+            r: 40, // Add right margin to accommodate color scale legend if needed
+            b: 40, // Add bottom margin to accommodate x-axis tick labels if needed
+            t: 40  // Add top margin to accommodate any annotations or titles if needed
+          }
+        }
+
+        Plotly.newPlot(heatmapId, plot_data, layout);
+
+      }
+
+      for (let e = 0; e < eigenvectors.length && e < 8; e++) {
+        let eigenvector = eigenvectors[e+1]
+        plotHeatmap(eigenvector, e)
+      }
+
+    }
+
+    function calculateEigenvectors(matrix) {
+      let array = math.matrix(matrix);
+      let eig = math.eigs(array);
+      let eigenvalues = eig.values.toArray();
+      let eigenvectors = eig.vectors.toArray();
+      eigenvectors = math.transpose(eigenvectors)
+      console.log("eigenvalues:", eigenvalues);
+      console.log("eigenvectors:", eigenvectors);
+      const filteredVectors = eigenvectors.filter((vector, index) => eigenvalues[index] !== 0);
+      return filteredVectors;
+    }
+
+    // Add click event listener to the Generate String button
+    const generateButton = document.getElementById("generateButton");
+    generateButton.addEventListener("click", () => {
+      // const output = document.getElementById("output");
+      // output.textContent = generateString();
+      grid_string = generateString();
+      plotEigenvectors(grid_string)
+      // console.log("grid", grid_string)
+    });
+
+  </script>
+  <script>
+    // Resize the heatmap containers
+    const heatmapContainers = document.querySelectorAll('.heatmap-container');
+    heatmapContainers.forEach(container => {
+    container.style.width = '300px';
+    container.style.height = '300px';
+    });
+  </script>
+</body>
+</html>
