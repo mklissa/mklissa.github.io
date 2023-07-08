@@ -1,0 +1,674 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en"><head>
+  <title>Deep Laplacian-based Options for Temporally-Extended Exploration</title>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<meta property="og:image" content="./images/intro_example.png"/>
+<meta property="og:title" content="Deep Laplacian-based Options for Temporally-Extended Exploration" />
+<!-- <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script> -->
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-167124286-2', 'auto');
+ga('send', 'pageview');
+</script>
+<script src="lib.js" type="text/javascript"></script>
+<script src="popup.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+// redefining default features
+var _POPUP_FEATURES = 'width=500,height=300,resizable=1,scrollbars=1,titlebar=1,status=1';
+</script>
+<link media="all" href="glab.css" type="text/css" rel="StyleSheet">
+<link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+<style type="text/css" media="all">
+IMG {
+  PADDING-RIGHT: 0px;
+  PADDING-LEFT: 0px;
+  FLOAT: right;
+  PADDING-BOTTOM: 0px;
+  PADDING-TOP: 0px
+}
+#primarycontent {
+  MARGIN-LEFT: auto; ; WIDTH: expression(document.body.clientWidth >
+1000? "1000px": "auto" ); MARGIN-RIGHT: auto; TEXT-ALIGN: left; max-width:
+1000px }
+BODY {
+  TEXT-ALIGN: center
+}
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js" integrity="sha512-VW8/i4IZkHxdD8OlqNdF7fGn3ba0+lYqag+Uy4cG6BtJ/LIr8t23s/vls70pQ41UasHH0tL57GQfKDApqc9izA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.23.1/plotly.min.js" integrity="sha512-EsIgdyDfnktid1PSaSMMqrwvUZeMW2TtbfX8vetg3zTWf6ZGKpcihKX1RcIK9GdewxXTET2KEaounUGCGQHT1A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+/*    background-color: #f4f4f4;*/
+  }
+
+  h1 {
+    margin-bottom: 20px;
+  }
+
+  table {
+    border-collapse: collapse;
+    margin: 0 auto;
+  }
+  .gridStyle td {
+    border: 1px solid #000;
+    width: 40px;
+    height: 40px;
+    background-color: #fff;
+    cursor: pointer;
+  }
+
+  .gridStyle td.clicked, td.edge {
+    background-color: #000;
+  }
+
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+  }
+
+  #generateButton {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    color: #fff;
+    background-color: #007BFF;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  #generateButton:hover {
+    background-color: #0056b3;
+  }
+
+  #buttonText {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  #heatmap-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .heatmap-container {
+    width: 150px;
+    height: 150px;
+    margin: 10px;
+  }
+</style>
+<style type="text/css">
+  body {
+    font-family: "Titillium Web","HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight:300;
+    font-size:18px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 0px;
+    width: 100%;
+  }
+
+  h1 {
+    font-weight:300;
+  }
+
+  div {
+    max-width: 95%;
+    margin:auto;
+    padding: 10px;
+  }
+
+  .table-like {
+    display: flex;
+    flex-wrap: wrap;
+    flex-flow: row wrap;
+    justify-content: center;
+  }
+
+  .disclaimerbox {
+    background-color: #eee;
+    border: 1px solid #eeeeee;
+    border-radius: 10px ;
+    -moz-border-radius: 10px ;
+    -webkit-border-radius: 10px ;
+    padding: 20px;
+  }
+
+  video.header-vid {
+    height: 140px;
+    border: 1px solid black;
+    border-radius: 10px ;
+    -moz-border-radius: 10px ;
+    -webkit-border-radius: 10px ;
+  }
+
+  img {
+    padding: 0;
+    display: block;
+    margin: 0 auto;
+    max-height: 100%;
+    max-width: 100%;
+  }
+
+  iframe {
+    max-width: 100%;
+  }
+
+  img.header-img {
+    height: 140px;
+    border: 1px solid black;
+    border-radius: 10px ;
+    -moz-border-radius: 10px ;
+    -webkit-border-radius: 10px ;
+  }
+
+  img.rounded {
+    border: 1px solid #eeeeee;
+    border-radius: 10px ;
+    -moz-border-radius: 10px ;
+    -webkit-border-radius: 10px ;
+  }
+
+  a:link,a:visited
+  {
+    color: #1367a7;
+    text-decoration: none;
+  }
+  a:hover {
+    color: #208799;
+  }
+
+  td.dl-link {
+    height: 160px;
+    text-align: center;
+    font-size: 22px;
+  }
+
+  .layered-paper-big { /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
+    box-shadow:
+            0px 0px 1px 1px rgba(0,0,0,0.35), /* The top layer shadow */
+            5px 5px 0 0px #fff, /* The second layer */
+            5px 5px 1px 1px rgba(0,0,0,0.35), /* The second layer shadow */
+            10px 10px 0 0px #fff, /* The third layer */
+            10px 10px 1px 1px rgba(0,0,0,0.35), /* The third layer shadow */
+            15px 15px 0 0px #fff, /* The fourth layer */
+            15px 15px 1px 1px rgba(0,0,0,0.35), /* The fourth layer shadow */
+            20px 20px 0 0px #fff, /* The fifth layer */
+            20px 20px 1px 1px rgba(0,0,0,0.35), /* The fifth layer shadow */
+            25px 25px 0 0px #fff, /* The fifth layer */
+            25px 25px 1px 1px rgba(0,0,0,0.35); /* The fifth layer shadow */
+    margin-left: 10px;
+    margin-right: 45px;
+  }
+
+
+  .layered-paper { /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
+    box-shadow:
+            0px 0px 1px 1px rgba(0,0,0,0.35), /* The top layer shadow */
+            5px 5px 0 0px #fff, /* The second layer */
+            5px 5px 1px 1px rgba(0,0,0,0.35), /* The second layer shadow */
+            10px 10px 0 0px #fff, /* The third layer */
+            10px 10px 1px 1px rgba(0,0,0,0.35); /* The third layer shadow */
+    margin-top: 5px;
+    margin-left: 10px;
+    margin-right: 30px;
+    margin-bottom: 5px;
+  }
+
+  .vert-cent {
+    position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+  }
+
+  hr
+  {
+    border: 0;
+    height: 1px;
+    max-width: 1100px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+  }
+
+  #authors td {
+    padding-bottom:5px;
+    padding-top:30px;
+  }
+</style>
+
+<body>
+
+<div id="primarycontent">
+<center><h1 style="font-size: 182%">Deep Laplacian-based Options for Temporally-Extended Exploration</h1></center>
+<center>
+  <div class="table-like" style="justify-content:space-evenly;max-width:970px;margin:auto;padding:0px">
+    <div style="padding:7px">
+      <center>
+        <a href="https://mklissa.github.io" style="font-size:115%">Martin Klissarov</a>
+      </center>
+      <center style="font-size:100%">
+        MILA / McGill University
+      </center>
+    </div>
+    <div style="padding:7px">
+      <center>
+        <a href="https://webdocs.cs.ualberta.ca/~machado/" style="font-size:115%">Marlos C. Machado</a>
+      </center>
+      <center style="font-size:100%">
+        University of Alberta
+      </center>
+    </div>
+  </div>
+</center>
+<div style="padding:7px">
+    Work done while at DeepMind.
+</div>
+<h3 style="text-align:center; font-size:120%; margin-top:20px">
+    ICML 2023
+</h3>
+
+<div class="table-like" style="justify-content:space-evenly;max-width:1000px;margin:auto;">
+  <center>
+    <table>
+      <tr>
+        <td style="font-size:26px;margin:10px;font-family:monospace">
+          <a style="margin:2px" href="https://openreview.net/pdf?id=zoxrImInpR">Paper</a>
+        </td>
+        <td>
+          <span style="font-size:26px;margin:40px;">Code (coming soon)</span>
+        </td>
+        <td style="font-size:26px;margin:40px;font-family:monospace">
+          <a style="margin:2px" href="https://twitter.com/MarlosCMachado/status/1618826709704523776">Twitter</a>
+        </td><!-- 
+        <td style="font-size:26px;margin:10px;font-family:monospace">
+          Blogpost (coming soon)
+        </td> -->
+      </tr>
+    </table>
+  </center>
+</div>
+
+<center>
+
+<style type="text/css">
+  .tooltip {
+  /*display: inline-block;*/
+  padding-bottom: 0px;
+  /*border-bottom: 1px dotted black;*/
+}
+
+.tooltip .tooltipdetails {
+  display: block;
+  visibility: hidden;
+  width: 980px;
+  color: black;
+  text-align: left;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  border:3px solid black;
+  /*bottom: 100%;*/
+  /*left: 0%;*/
+  /*margin-left: -60px;*/
+  background-color:white;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+.tooltip:hover .tooltipdetails {
+  visibility: visible;
+  opacity: 1;
+}
+</style>
+
+<video src="https://user-images.githubusercontent.com/5674597/173155705-02f098f7-dca8-4022-995a-57b1aa854935.mp4" controls="controls" autoplay="true" loop="true" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="width:100%">  </video>
+<div style="font-size:12.3px; text-align: justify;padding-top: 0px;margin-left: 0px; margin-right: 0px;max-width: 100%">
+This will be replaced with a video of the DCEO algorithm.
+</div>
+<br/>
+
+<h2>Abstract</h2>
+<div style="font-size:14px; text-align: justify;">
+<p>
+Selecting exploratory actions that generate a rich stream of experience for better learning is a fundamental challenge in reinforcement learning (RL). An approach to tackle this problem consists in selecting actions according to specific policies for an extended period of time, also known as options. A recent line of work to derive such exploratory options builds upon the <em class="ul" style="font-weight: bold;">eigenfunctions of the graph Laplacian</em>. 
+</p><p>
+Importantly, <em class="ul" style="font-weight: bold;">until now these methods have been mostly limited to tabular domains</em> where (1) the graph Laplacian matrix was either given or could be fully estimated, (2) performing eigendecomposition on this matrix was computationally tractable, and (3) value functions could be learned exactly. Additionally, these methods required a separate option discovery phase. These assumptions are fundamentally not scalable. 
+</p><p>
+In this paper we address these limitations and show how recent results for directly approximating the eigenfunctions of the Laplacian can be leveraged to truly scale up options-based exploration. To do so, <em class="ul" style="font-weight: bold;">we introduce a fully online deep RL algorithm for discovering Laplacian-based options</em> and evaluate our approach on a variety of pixel-based tasks. We compare to several state-of-the-art exploration methods and show that our approach is effective, general, and especially promising in non-stationary settings.
+</p>
+</div>
+
+<hr>
+<h2>What do the eigenfunctions of the graph Laplacian represent in RL?</h2>
+<p>
+<div style="text-align: justify;">
+The Eigenfunctions of the graph Laplacian have a rich history in the RL litterature. The seminal paper of <a href="http://all.cs.umass.edu/pubs/2005/mahadevan_ICML05.pdf"> Mahadevan, 2005</a>, introduces them as proto-value functions and argues that they constitute a useful representation in RL as they encode the properties of the environment at different timescales. Later on, <a href="https://arxiv.org/abs/1703.00956">Machado et al., 2017</a> further proposes to leverage as a scaffold for learning temporal abstractions. They define the set of eigenoptions as the skills that maximize each of eigenfunctions of the graph Laplacian. 
+</p><p>
+  But what do these look like in practice? Have a try right here! Draw your own grid and see how the eigenfunctions react to the changes.
+</p>
+</div>
+
+
+  <div class="container">
+    <table id="grid" class="gridStyle"></table>
+    <button id="generateButton">Generate Eigenfunctions</button>
+    <p id="buttonText">To generate the plots: <br> 1. draw your grid <br> 2. click the button</p>
+  </div>
+
+  <div id="heatmap-container">
+    <div class="heatmap-row">
+      <div id="heatmap-0" class="heatmap-container"></div>
+      <div id="heatmap-4" class="heatmap-container"></div>
+    </div>
+    <div class="heatmap-row">
+      <div id="heatmap-1" class="heatmap-container"></div>
+      <div id="heatmap-5" class="heatmap-container"></div>
+    </div>
+    <div class="heatmap-row">
+      <div id="heatmap-2" class="heatmap-container"></div>
+      <div id="heatmap-6" class="heatmap-container"></div>
+    </div>
+    <div class="heatmap-row">
+      <div id="heatmap-3" class="heatmap-container"></div>
+      <div id="heatmap-7" class="heatmap-container"></div>
+    </div>
+  </div>
+  <script>
+    let isDrawing = false;
+
+    function handleMouseDown(event) {
+      isDrawing = true;
+      toggleCellColor(event.target);
+    }
+
+    function handleMouseUp() {
+      isDrawing = false;
+    }
+
+    function handleMouseEnter(event) {
+      const cell = event.target;
+      if (isDrawing && !cell.classList.contains("edge")) {
+        toggleCellColor(cell);
+      }
+    }
+
+    function handleClick(event) {
+      event.preventDefault(); // Prevent default click behavior
+    }
+
+    function toggleCellColor(cell) {
+      if (cell.classList.contains("clicked")) {
+        cell.classList.remove("clicked");
+      } else {
+        cell.classList.add("clicked");
+      }
+    }
+
+    function generateString() {
+      const grid = document.getElementById("grid");
+      const rows = grid.querySelectorAll("tr");
+      let str = "";
+      rows.forEach((row) => {
+        const cells = row.querySelectorAll("td");
+        cells.forEach((cell) => {
+          if (cell.classList.contains("clicked")) {
+            str += "*";
+          } else {
+            str += "@";
+          }
+        });
+        str += "L"; // Add a newline character after each row
+      });
+      return str.slice(0, -1);
+    }
+
+    // Create a 10x10 grid
+    const grid = document.getElementById("grid");
+    for (let i = 0; i < 10; i++) {
+      const row = document.createElement("tr");
+      for (let j = 0; j < 10; j++) {
+        const cell = document.createElement("td");
+        cell.addEventListener("mousedown", handleMouseDown, true);
+        cell.addEventListener("mouseup", handleMouseUp, true);
+        cell.addEventListener("mouseenter", handleMouseEnter, true);
+        cell.addEventListener("click", handleClick);
+
+        // Add "edge" class to cells on the edge
+        if (i === 0 || i === 9 || j === 0 || j === 9) {
+          cell.classList.add("clicked", "edge");
+        }[]
+
+        row.appendChild(cell);
+      }
+      grid.appendChild(row);
+    }
+
+    function plotEigenvectors(strMDP) {
+      // Replace "@" with 0 and "*" with 1
+      strMDP = strMDP.replace(/@/g, '0').replace(/\*/g, '1');
+
+      // Split the string by rows
+      let data = strMDP.split('L');
+      console.log("data", data)
+
+      // Define the number of rows and columns
+      let numRows = data.length;
+      let numCols = data[0].length;
+
+      // Store the rows in a list of lists with numerical values
+      let matrixMDP = [];
+      for (let i = 0; i < data.length; i++) {
+        let row = [];
+        for (let j = 0; j < data[i].length; j++) {
+          row.push(Number(data[i][j]));
+        }
+        matrixMDP.push(row);
+      }
+
+      // Create the idxMatrix
+      let idxMatrix = [];
+      for (let i = 0; i < numRows; i++) {
+        let row = [];
+        for (let j = 0; j < numCols; j++) {
+          row.push(i * numCols + j);
+        }
+        idxMatrix.push(row);
+      }
+
+      let numStates = numRows * numCols;
+
+      let adjMatrix = [];
+      for (let i = 0; i < numStates; i++) {
+        adjMatrix[i] = [];
+        for (let j = 0; j < numStates; j++) {
+          adjMatrix[i][j] = 0;
+        }
+      }
+      console.log("adjMatrix", adjMatrix)
+
+      for (let i = 0; i < numRows; i++) {
+        for (let j = 0; j < numCols; j++) {
+
+          if (i !== 0 && i !== (numRows - 1) && j !== 0 && j !== (numCols - 1) && matrixMDP[i][j] !== 1) {
+
+            if (matrixMDP[i + 1][j] !== 1) {
+              adjMatrix[idxMatrix[i][j]][idxMatrix[i + 1][j]] = 1;
+            }
+            if (matrixMDP[i - 1][j] !== 1) {
+              adjMatrix[idxMatrix[i][j]][idxMatrix[i - 1][j]] = 1;
+            }
+            if (matrixMDP[i][j + 1] !== 1) {
+              adjMatrix[idxMatrix[i][j]][idxMatrix[i][j + 1]] = 1;
+            }
+            if (matrixMDP[i][j - 1] !== 1) {
+              adjMatrix[idxMatrix[i][j]][idxMatrix[i][j - 1]] = 1;
+            }
+
+          }
+
+        }
+      }
+
+      let lapMatrix = [];
+      for (let i = 0; i < numStates; i++) {
+        lapMatrix[i] = [];
+        for (let j = 0; j < numStates; j++) {
+          lapMatrix[i][j] = 0;
+        }
+      }
+
+      for (let i = 0; i < numStates; i++) {
+        let degree = 0;
+        for (let j = 0; j < numStates; j++) {
+          lapMatrix[i][j] = - adjMatrix[i][j];
+          degree += adjMatrix[i][j];
+        }
+        lapMatrix[i][i] = degree;
+      }
+      console.log("lapMatrix", lapMatrix)
+      let eigenvectors = calculateEigenvectors(lapMatrix);
+
+      function plotHeatmap(vector, index) {
+        const heatmapId = `heatmap-${index}`;
+
+        // Create a new div for each heatmap
+        const heatmapDiv = document.createElement('div');
+        heatmapDiv.id = heatmapId;
+        document.getElementById('heatmap-container').appendChild(heatmapDiv);
+
+        let heatmapData = [];
+        for (var i = 0; i < numRows; i++) {
+          heatmapData.push(vector.slice(i * numCols, (i + 1) * numCols));
+        }
+        function horizontalFlip(arr) {
+          return arr.reverse();
+        }
+        const flippedArray = horizontalFlip(heatmapData);
+        console.log("flippedArray", flippedArray);
+        console.log("heatmapData", heatmapData)
+
+        // Create the heatmap using Plotly.js
+        let plot_data = [
+          {
+            z: flippedArray,
+            type: 'heatmap',
+            colorscale : 'Viridis',
+            showscale: false,
+          }
+        ];
+
+        let layout = {
+          xaxis: {
+            showticklabels: false, // Hide the x-axis tick labels
+            ticks: ''
+          },
+          yaxis: {
+            showticklabels: false, // Hide the y-axis tick labels
+            ticks: ''
+          },
+          autosize: true, // Automatically adjust the plot size to maintain aspect ratio
+          width: 220, // Set the width
+          height: 220, // Set the height
+          margin: {
+            l: 40, // Add left margin to accommodate y-axis tick labels if needed
+            r: 40, // Add right margin to accommodate color scale legend if needed
+            b: 40, // Add bottom margin to accommodate x-axis tick labels if needed
+            t: 40  // Add top margin to accommodate any annotations or titles if needed
+          }
+        }
+
+        Plotly.newPlot(heatmapId, plot_data, layout);
+
+      }
+
+      for (let e = 0; e < eigenvectors.length && e < 8; e++) {
+        let eigenvector = eigenvectors[e+1]
+        plotHeatmap(eigenvector, e)
+      }
+
+    }
+
+    function calculateEigenvectors(matrix) {
+      let array = math.matrix(matrix);
+      let eig = math.eigs(array);
+      let eigenvalues = eig.values.toArray();
+      let eigenvectors = eig.vectors.toArray();
+      eigenvectors = math.transpose(eigenvectors)
+      console.log("eigenvalues:", eigenvalues);
+      console.log("eigenvectors:", eigenvectors);
+      const filteredVectors = eigenvectors.filter((vector, index) => eigenvalues[index] !== 0);
+      return filteredVectors;
+    }
+
+    // Add click event listener to the Generate String button
+    const generateButton = document.getElementById("generateButton");
+    generateButton.addEventListener("click", () => {
+      grid_string = generateString();
+      plotEigenvectors(grid_string)
+    });
+
+  </script>
+  <!-- 
+  <script>
+    // Resize the heatmap containers
+    const heatmapContainers = document.querySelectorAll('.heatmap-container');
+    heatmapContainers.forEach(container => {
+    container.style.width = '150px';
+    container.style.height = '150px';
+    });
+  </script> -->
+
+<hr>
+<h2>More details</h2>
+TODO: Actual figures from the paper.
+
+<hr>
+
+<!-- <h3 style="margin-top: -1.6em;text-align:left"><code style="font-size: 15pt">bibtex</code> <span style="font-size: 14.5pt">entry</span></h3> -->
+<h2>Citation</h2>
+ <!-- <div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;max-width:100%"> -->
+ <pre style="font-size: 10pt; margin: .3em 0px;text-align: left;
+     white-space: pre-wrap;       /* Since CSS 2.1 */
+     white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+     white-space: -pre-wrap;      /* Opera 4-6 */
+     white-space: -o-pre-wrap;    /* Opera 7 */
+     word-wrap: break-word;       /* Internet Explorer 5.5+ */">
+@inproceedings{klissarov2023deep,
+  title={Deep Laplacian-based Options for Temporally-Extended Exploration},
+  author={Martin Klissarov and Marlos C. Machado},
+  booktitle={International Conference on Machine Learning},
+  organization={PMLR},
+  year={2023}
+}
+</pre>
+</div>
+
+
+<br>
+<h2 style="text-align:left">Acknowledgements</h2>
+<p style="font-size:14px; text-align: justify; padding-bottom: 15px; padding-top: 5px">The authors would like to thank Adam White, Andre Barreto, Tom Zahavy, Michael Bowling, Diana Borsa and Doina Precup for constructive feedback throughout this project, Andy Patterson, Josh Davidson and the whole DeepMind Alberta team for helpful and inspiring discussions. A special thanks to Kaixin Wang for sharing the code of the generalized Laplacian and Kris de Asis for the availability of the Rubik's Cube 2x2 implementation. The authors would also like to thank NSERC for partially funding this research.</p>
+
+</body>
+
+</html>
