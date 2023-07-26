@@ -128,8 +128,12 @@
     }
 
     function handleClick(event) {
-      event.preventDefault(); // Prevent default click behavior
+        event.preventDefault(); // Prevent default click behavior
+        const cell = event.target;
+        // Toggle the clicked class, whether it was there or not
+        cell.classList.toggle("clicked");
     }
+
 
     function toggleCellColor(cell) {
         if (!cell.classList.contains("clicked")) {
