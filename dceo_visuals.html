@@ -139,6 +139,22 @@
       }
     }
 
+    function handleTouchMove(event) {
+        // Get the coordinates of the touch
+        var touch = event.touches[0];
+
+        // Get the element that the touch point is within
+        var element = document.elementFromPoint(touch.clientX, touch.clientY);
+
+        // Check if element is a grid cell
+        if (element && element.nodeName === 'TD') {
+            // Check if we should be drawing and if cell isn't an edge
+            if (isDrawing && !element.classList.contains("edge")) {
+                toggleCellColor(element);
+            }
+        }
+    }
+
     // Create a 10x10 grid
     const grid = document.getElementById("grid");
     for (let i = 0; i < 10; i++) {
@@ -153,7 +169,9 @@
         // Handle touch events
         cell.addEventListener("touchstart", handleMouseDown, false);
         cell.addEventListener("touchend", handleMouseUp, false);
-        cell.addEventListener("touchmove", handleMouseEnter, false);
+        // cell.addEventListener("touchmove", handleMouseEnter, false);
+        cell.addEventListener("touchmove", handleTouchMove, false);
+
 
         // Add "edge" class to cells on the edge
         if (i === 0 || i === 9 || j === 0 || j === 9) {
