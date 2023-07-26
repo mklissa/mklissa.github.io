@@ -156,7 +156,25 @@
         }
         event.preventDefault();
     }
+    let touchStartTime;
 
+    function handleTouchStart(event) {
+        event.preventDefault();
+        touchStartTime = Date.now(); // store the time when touchstart is fired
+        isDrawing = true;
+        toggleCellColor(event.target);
+    }
+
+    function handleTouchEnd(event) {
+        event.preventDefault();
+        isDrawing = false;
+        // Check if the touch duration is less than 200ms
+        if (Date.now() - touchStartTime < 200) {
+            // It's a tap, not a swipe, so toggle the cell
+            const cell = event.target;
+            cell.classList.toggle("clicked");
+        }
+    }
     // Create a 10x10 grid
     const grid = document.getElementById("grid");
     for (let i = 0; i < 10; i++) {
@@ -169,9 +187,10 @@
         cell.addEventListener("click", handleClick);
 
         // Handle touch events
-        cell.addEventListener("touchstart", handleMouseDown, false);
-        cell.addEventListener("touchend", handleMouseUp, false);
-        // cell.addEventListener("touchmove", handleMouseEnter, false);
+        // cell.addEventListener("touchstart", handleMouseDown, false);
+        // cell.addEventListener("touchend", handleMouseUp, false);
+        cell.addEventListener("touchstart", handleTouchStart, false);
+        cell.addEventListener("touchend", handleTouchEnd, false);
         cell.addEventListener("touchmove", handleTouchMove, false);
 
 
