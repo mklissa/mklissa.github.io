@@ -132,13 +132,10 @@
     }
 
     function toggleCellColor(cell) {
-      if (cell.classList.contains("clicked")) {
-        cell.classList.remove("clicked");
-      } else {
-        cell.classList.add("clicked");
-      }
+        if (!cell.classList.contains("clicked")) {
+            cell.classList.add("clicked");
+        }
     }
-
     function handleTouchMove(event) {
         // Get the coordinates of the touch
         var touch = event.touches[0];
@@ -153,6 +150,7 @@
                 toggleCellColor(element);
             }
         }
+        event.preventDefault();
     }
 
     // Create a 10x10 grid
