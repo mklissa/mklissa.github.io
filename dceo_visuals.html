@@ -107,10 +107,11 @@
     <div id="heatmap-7" class="heatmap-container"></div>
     </div>
   </div>
-  <script>
+<script>
     let isDrawing = false;
 
     function handleMouseDown(event) {
+      event.preventDefault();
       isDrawing = true;
       toggleCellColor(event.target);
     }
@@ -138,6 +139,32 @@
       }
     }
 
+    // Create a 10x10 grid
+    const grid = document.getElementById("grid");
+    for (let i = 0; i < 10; i++) {
+      const row = document.createElement("tr");
+      for (let j = 0; j < 10; j++) {
+        const cell = document.createElement("td");
+        cell.addEventListener("mousedown", handleMouseDown, true);
+        cell.addEventListener("mouseup", handleMouseUp, true);
+        cell.addEventListener("mouseenter", handleMouseEnter, true);
+        cell.addEventListener("click", handleClick);
+
+        // Handle touch events
+        cell.addEventListener("touchstart", handleMouseDown, false);
+        cell.addEventListener("touchend", handleMouseUp, false);
+        cell.addEventListener("touchmove", handleMouseEnter, false);
+
+        // Add "edge" class to cells on the edge
+        if (i === 0 || i === 9 || j === 0 || j === 9) {
+          cell.classList.add("clicked", "edge");
+        }
+
+        row.appendChild(cell);
+      }
+      grid.appendChild(row);
+    }
+
     function generateString() {
       const grid = document.getElementById("grid");
       const rows = grid.querySelectorAll("tr");
@@ -154,27 +181,6 @@
         str += "L"; // Add a newline character after each row
       });
       return str.slice(0, -1);
-    }
-
-    // Create a 10x10 grid
-    const grid = document.getElementById("grid");
-    for (let i = 0; i < 10; i++) {
-      const row = document.createElement("tr");
-      for (let j = 0; j < 10; j++) {
-        const cell = document.createElement("td");
-        cell.addEventListener("mousedown", handleMouseDown, true);
-        cell.addEventListener("mouseup", handleMouseUp, true);
-        cell.addEventListener("mouseenter", handleMouseEnter, true);
-        cell.addEventListener("click", handleClick);
-
-        // Add "edge" class to cells on the edge
-        if (i === 0 || i === 9 || j === 0 || j === 9) {
-          cell.classList.add("clicked", "edge");
-        }[]
-
-        row.appendChild(cell);
-      }
-      grid.appendChild(row);
     }
 
     function plotEigenvectors(strMDP) {
