@@ -3,7 +3,7 @@
                Pierre{-}Luc Bacon and
                Jean Harb and
                Doina Precup},
-  title     = {Learnings Options End-to-End
+  title     = {Learning Options End-to-End
    for Continuous Action Tasks},
   journal   = {CoRR},
   volume    = {abs/1712.00004},
