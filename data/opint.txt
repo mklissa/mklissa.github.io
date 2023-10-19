@@ -1,0 +1,21 @@
+@inproceedings{DBLP:conf/aaai/KhetarpalKCBP20,
+  author       = {Khimya Khetarpal and
+                  Martin Klissarov and
+                  Maxime Chevalier{-}Boisvert and
+                  Pierre{-}Luc Bacon and
+                  Doina Precup},
+  title        = {Options of Interest: Temporal Abstraction with Interest Functions},
+  booktitle    = {The Thirty-Fourth {AAAI} Conference on Artificial Intelligence, {AAAI}
+                  2020, The Thirty-Second Innovative Applications of Artificial Intelligence
+                  Conference, {IAAI} 2020, The Tenth {AAAI} Symposium on Educational
+                  Advances in Artificial Intelligence, {EAAI} 2020, New York, NY, USA,
+                  February 7-12, 2020},
+  pages        = {4444--4451},
+  publisher    = {{AAAI} Press},
+  year         = {2020},
+  url          = {https://doi.org/10.1609/aaai.v34i04.5871},
+  doi          = {10.1609/aaai.v34i04.5871},
+  timestamp    = {Mon, 04 Sep 2023 16:50:25 +0200},
+  biburl       = {https://dblp.org/rec/conf/aaai/KhetarpalKCBP20.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
