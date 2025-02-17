@@ -1,0 +1,8 @@
+@inproceedings{
+klissarov2025maestromotif,
+title={MaestroMotif: Skill Design from Artificial Intelligence Feedback},
+author={Martin Klissarov and Mikael Henaff and Roberta Raileanu and Shagun Sodhani and Pascal Vincent and Amy Zhang and Pierre-Luc Bacon and Doina Precup and Marlos C. Machado and Pierluca D'Oro},
+booktitle={The Thirteenth International Conference on Learning Representations},
+year={2025},
+url={https://openreview.net/forum?id=or8mMhmyRV}
+}
