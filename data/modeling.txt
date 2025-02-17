@@ -1,0 +1,8 @@
+@inproceedings{
+klissarov2025on,
+title={On the Modeling Capabilities of Large Language Models for Sequential Decision Making},
+author={Martin Klissarov and R Devon Hjelm and Alexander T Toshev and Bogdan Mazoure},
+booktitle={The Thirteenth International Conference on Learning Representations},
+year={2025},
+url={https://openreview.net/forum?id=vodsIF3o7N}
+}
